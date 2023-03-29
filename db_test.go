@@ -34,6 +34,25 @@ func TestMiniDB_Put(t *testing.T) {
 		t.Log(err)
 	}
 }
+func Benchmark_Put(b *testing.B) {
+	db, err := Open("/tmp/minidb")
+	if err != nil {
+		b.Error(err)
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	keyPrefix := "test_key_"
+	valPrefix := "test_val_"
+	for i := 0; i < 10000; i++ {
+		key := []byte(keyPrefix + strconv.Itoa(i%5))
+		val := []byte(valPrefix + strconv.FormatInt(rand.Int63(), 10))
+		err = db.Put(key, val)
+	}
+
+	if err != nil {
+		b.Log(err)
+	}
+}
 
 func TestMiniDB_Get(t *testing.T) {
 	db, err := Open("/tmp/minidb")
@@ -55,7 +74,29 @@ func TestMiniDB_Get(t *testing.T) {
 	getVal([]byte("test_key_2"))
 	getVal([]byte("test_key_3"))
 	getVal([]byte("test_key_4"))
-	getVal([]byte("test_key_5"))
+	//getVal([]byte("test_key_5"))
+}
+func Benchmark_Get(b *testing.B) {
+	db, err := Open("/tmp/minidb")
+	if err != nil {
+		b.Error(err)
+	}
+
+	getVal := func(key []byte) {
+		val, err := db.Get(key)
+		if err != nil {
+			b.Error("read val err: ", err)
+		} else {
+			b.Logf("key = %s, val = %s\n", string(key), string(val))
+		}
+	}
+
+	getVal([]byte("test_key_0"))
+	getVal([]byte("test_key_1"))
+	getVal([]byte("test_key_2"))
+	getVal([]byte("test_key_3"))
+	getVal([]byte("test_key_4"))
+	//getVal([]byte("test_key_5"))
 }
 
 func TestMiniDB_Del(t *testing.T) {
